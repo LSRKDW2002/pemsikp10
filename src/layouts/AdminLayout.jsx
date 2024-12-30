@@ -1,22 +1,17 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 import Sider from "../components/Sider";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
-import Button from "../Components/Button";
-import Table from "../Components/Table";
 
-function AdminLayout({ children }) {
-  const handleButtonClick = () => {
-    alert("Tombol diklik!");
-  };
-
+function AdminLayout() {
   return (
-    <div className="flex flex-row min-h-screen">
+    <div className="flex h-screen">
       <Sider />
-      <div className="flex flex-col w-full">
-        <Header />    
-        <main className="flex-grow">{children}</main>
-        <Footer />
+      <div className="flex flex-col flex-1">
+        <Header />
+        <main className="p-6 bg-gray-100 flex-1">
+          <Outlet />
+        </main>
       </div>
     </div>
   );

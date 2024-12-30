@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Table({ nim, nama, mahasiswaList = [], onEdit, onDelete }) { // Set default value for mahasiswaList as an empty array
+function Table({ mahasiswaList = [], onEdit = () => {}, onDelete = () => {} }) {
   return (
     <table className="table-auto w-full bg-white shadow-md rounded-md">
       <thead>

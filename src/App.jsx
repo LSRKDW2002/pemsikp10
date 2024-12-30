@@ -3,7 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Mahasiswa from "./pages/admin/Mahasiswa";
-import AdminLayout from "./Layouts/AdminLayout";
+import AdminLayout from "./layouts/AdminLayout";
+import Users from "./pages/admin/Users";
+import Settings from "./pages/admin/Settings";
 
 function App() {
   return (
@@ -21,6 +23,24 @@ function App() {
           element={
             <AdminLayout>
               <Mahasiswa />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/settings"
+          element={
+            <AdminLayout>
+              <Settings />
+            </AdminLayout>
+          }
+        />
+
+        <Route
+          path="/admin/users"
+          element={
+            <AdminLayout>
+              <Users />
             </AdminLayout>
           }
         />

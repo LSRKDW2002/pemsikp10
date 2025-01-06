@@ -1,127 +1,86 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const Register = () => {
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
 
-  const handleInputChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleRegister = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      Swal.fire({
-        icon: "error",
-        title: "Registrasi Gagal",
-        text: "Password dan Konfirmasi Password tidak cocok.",
-      });
-      return;
-    }
 
     try {
-      const response = await fetch("http://localhost:5001/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
+      const response = await axios.post("http://demo-api.syaifur.io/api/register", formData);
+      Swal.fire({
+        title: "Berhasil!",
+        text: "Registrasi berhasil disimpan!",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then(() => {
+        navigate("/");
       });
-
-      if (response.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Registrasi Berhasil",
-          text: "Akun berhasil dibuat!",
-        }).then(() => navigate("/login"));
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Registrasi Gagal",
-          text: "Terjadi kesalahan saat menyimpan data.",
-        });
-      }
     } catch (error) {
+      const message = error.response?.data?.message || "Terjadi kesalahan, coba lagi nanti.";
       Swal.fire({
         icon: "error",
         title: "Registrasi Gagal",
-        text: "Tidak dapat terhubung ke server.",
+        text: message,
       });
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white rounded shadow">
-        <h2 className="text-2xl font-bold text-center text-gray-700">Register</h2>
-        <form className="mt-6" onSubmit={handleRegister}>
+    <div className="flex justify-center items-center min-h-screen bg-blue-100">
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+        <h2 className="text-2xl font-bold text-gray-700 text-center mb-6">Form Register</h2>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600">Nama</label>
+            <label className="block text-gray-600 font-medium mb-2">Nama:</label>
             <input
               type="text"
               name="name"
               value={formData.name}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              onChange={handleChange}
               placeholder="Masukkan nama"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600">Email</label>
+            <label className="block text-gray-600 font-medium mb-2">Email:</label>
             <input
               type="email"
               name="email"
               value={formData.email}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              onChange={handleChange}
               placeholder="Masukkan email"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600">Password</label>
+            <label className="block text-gray-600 font-medium mb-2">Password:</label>
             <input
               type="password"
               name="password"
               value={formData.password}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              onChange={handleChange}
               placeholder="Masukkan password"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600">
-              Konfirmasi Password
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Konfirmasi password"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none"
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
           >
-            Daftar
+            Register
           </button>
         </form>
       </div>

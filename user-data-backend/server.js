@@ -1,59 +1,79 @@
-// server.js (Backend Express)
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const axios = require('axios'); // Menggunakan Axios untuk koneksi ke API eksternal
 
 const app = express();
 const PORT = 5001;
 
+// Middleware
 app.use(cors());
-app.use(express.json()); // Agar bisa membaca data JSON dari request body
+app.use(express.json()); // Agar dapat membaca request body dalam format JSON
 
-// Endpoint untuk menyimpan data user
-app.post("/register", (req, res) => {
-    const newUser = req.body;
-  
-    // Baca file JSON
-    fs.readFile(DATA_FILE, "utf8", (err, data) => {
-      if (err) {
-        console.error("Gagal membaca file:", err);
-        return res.status(500).json({ error: "Gagal membaca data" });
-      }
-  
-      const users = data ? JSON.parse(data) : [];
-      users.push(newUser);
-  
-      // Simpan kembali ke file JSON
-      fs.writeFile(DATA_FILE, JSON.stringify(users, null, 2), (err) => {
-        if (err) {
-          console.error("Gagal menyimpan file:", err);
-          return res.status(500).json({ error: "Gagal menyimpan data" });
+// Endpoint untuk registrasi (Proxy ke API eksternal)
+app.post('/register', async (req, res) => {
+    try {
+        // Validasi input dari frontend
+        const { name, email, password } = req.body;
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: 'Semua field harus diisi' });
         }
-        res.status(201).json({ message: "User berhasil disimpan" });
-      });
-    });
-  });
-  
-// Endpoint untuk login
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
 
-  // Membaca data pengguna dari file JSON
-  const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'users.json')));
+        // Kirim data ke API eksternal
+        const response = await axios.post('http://demo-api.syaifur.io/api/register', {
+            name,
+            email,
+            password,
+        });
 
-  // Menemukan user yang cocok dengan email dan password
-  const user = users.find(u => u.email === email && u.password === password);
+        // Kirimkan respon dari API eksternal kembali ke frontend
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error('Error saat register:', error);
 
-  if (user) {
-    // Jika user ditemukan, login berhasil
-    res.status(200).json({ message: 'Login berhasil', user });
-  } else {
-    // Jika user tidak ditemukan
-    res.status(401).json({ message: 'Email atau password salah' });
-  }
+        // Tangani error dari API eksternal
+        if (error.response) {
+            return res.status(error.response.status).json({
+                message: error.response.data.message || 'Terjadi kesalahan pada API eksternal',
+            });
+        }
+
+        // Tangani error lain (misal: koneksi)
+        res.status(500).json({ message: 'Terjadi kesalahan internal' });
+    }
 });
 
+// Endpoint untuk login (Proxy ke API eksternal)
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email dan password harus diisi' });
+        }
+
+        // Kirim data ke API eksternal
+        const response = await axios.post('http://demo-api.syaifur.io/api/login', {
+            email,
+            password,
+        });
+
+        // Kirimkan respon dari API eksternal kembali ke frontend
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error('Error saat login:', error);
+
+        // Tangani error dari API eksternal
+        if (error.response) {
+            return res.status(error.response.status).json({
+                message: error.response.data.message || 'Terjadi kesalahan pada API eksternal',
+            });
+        }
+
+        // Tangani error lain (misal: koneksi)
+        res.status(500).json({ message: 'Terjadi kesalahan internal' });
+    }
+});
+
+// Jalankan server
 app.listen(PORT, () => {
-  console.log(`Server berjalan di http://localhost:${PORT}`);
+    console.log(`Server berjalan di http://localhost:${PORT}`);
 });

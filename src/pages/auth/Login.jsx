@@ -1,12 +1,12 @@
-// Pages/Auth/Login.jsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  
+  const [formData, setFormData] = useState({ email: "", password: "" });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -16,40 +16,20 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      // Mengirim permintaan POST ke backend Express untuk memverifikasi login
-      const response = await fetch('http://localhost:5001/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Login berhasil, tampilkan pesan sukses dan arahkan ke halaman Mahasiswa
-        Swal.fire({
-            icon: 'success',
-            title: 'Login Berhasil',
-            text: 'Selamat datang!',
-          }).then(() => {
-            navigate('/admin/mahasiswa'); // Mengarahkan ke halaman Mahasiswa yang benar
-          });
-      } else {
-        // Jika login gagal, tampilkan pesan error
-        Swal.fire({
-          icon: 'error',
-          title: 'Login Gagal',
-          text: data.message || 'Email atau password salah.',
-        });
-      }
-    } catch (error) {
-      // Menangani kesalahan jika ada masalah dengan koneksi API
+      const response = await axios.post("http://demo-api.syaifur.io/api/login", formData);
       Swal.fire({
-        icon: 'error',
-        title: 'Kesalahan',
-        text: 'Terjadi kesalahan, coba lagi nanti.',
+        icon: "success",
+        title: "Login Berhasil",
+        text: "Selamat datang!",
+      }).then(() => {
+        navigate("/admin/mahasiswa");
+      });
+    } catch (error) {
+      const message = error.response?.data?.message || "Terjadi kesalahan, coba lagi nanti.";
+      Swal.fire({
+        icon: "error",
+        title: "Login Gagal",
+        text: message,
       });
     }
   };
@@ -91,9 +71,9 @@ const Login = () => {
           </button>
         </form>
         <p className="mt-4 text-sm text-center text-gray-600">
-          Belum punya akun?{' '}
+          Belum punya akun?{" "}
           <span
-            onClick={() => navigate('/register')}
+            onClick={() => navigate("/register")}
             className="text-blue-500 cursor-pointer hover:underline"
           >
             Daftar di sini
